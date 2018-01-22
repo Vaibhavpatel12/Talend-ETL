@@ -1,0 +1,108 @@
+------ is it good to add rejection reason--------
+
+SELECT b.RejectReason,count(*) FROM claims a
+JOIN List_RejectReason b ON a.RejectionReasonID=b.RejectReasonID
+WHERE RejectReason IS NOT NULL 
+GROUP BY b.RejectReason ORDER BY 2 desc
+
+
+
+---------------------
+
+steps for glossary:
+
+Entry in REPORT_Measure
+
+
+
+
+
+
+
+
+
+
+------------------------------
+
+
+
+USE [EDW_PETPLAN_STAGE]
+GO
+
+/****** Object:  View [dbo].[v_report_glossary]    Script Date: 12/26/2017 4:26:14 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE VIEW [dbo].[v_report_glossary]
+AS
+SELECT T1.ReportGlossaryId, 
+	T2.MeasureDefinition,
+	T2.MeasureExample, 
+	T2.MeasureName, 
+	T3.ProjectName, 
+	T4.ReportName
+FROM REPORT_Glossary T1     --- base 
+		INNER JOIN REPORT_Measure T2 ON T2.MeasureId = T1.MeasureId
+		INNER JOIN REPORT_Project T3 ON T3.ProjectId = T1.ProjectId
+		INNER JOIN REPORT_List T4 ON T4.ReportListId = T1.ReportListId
+GO
+
+
+USE [EDW_PETPLAN_STAGE]
+GO
+
+/****** Object:  Table [dbo].[REPORT_Glossary]    Script Date: 12/26/2017 4:49:14 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[REPORT_Glossary](
+	[CrtdDateTime] [datetime] NOT NULL,
+	[CrtdUser] [varchar](50) NOT NULL,
+	[MeasureId] [int] NOT NULL,
+	[ProjectId] [int] NOT NULL,
+	[ReportGlossaryId] [int] IDENTITY(1,1) NOT NULL,
+	[ReportListId] [int] NOT NULL,
+ CONSTRAINT [PK_REPORT_Glossary] PRIMARY KEY CLUSTERED 
+(
+	[ReportGlossaryId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[REPORT_Glossary] ADD  CONSTRAINT [DF_REPORT_Glossary_CrtdDateTime]  DEFAULT (getdate()) FOR [CrtdDateTime]
+GO
+
+ALTER TABLE [dbo].[REPORT_Glossary] ADD  CONSTRAINT [DF_REPORT_Glossary_CrtdUser]  DEFAULT (suser_sname()) FOR [CrtdUser]
+GO
+
+ALTER TABLE [dbo].[REPORT_Glossary]  WITH CHECK ADD  CONSTRAINT [FK_REPORT_Glossary_REPORT_List] FOREIGN KEY([ReportListId])
+REFERENCES [dbo].[REPORT_List] ([ReportListId])
+GO
+
+ALTER TABLE [dbo].[REPORT_Glossary] CHECK CONSTRAINT [FK_REPORT_Glossary_REPORT_List]
+GO
+
+ALTER TABLE [dbo].[REPORT_Glossary]  WITH CHECK ADD  CONSTRAINT [FK_REPORT_Glossary_REPORT_Measure] FOREIGN KEY([MeasureId])
+REFERENCES [dbo].[REPORT_Measure] ([MeasureId])
+GO
+
+ALTER TABLE [dbo].[REPORT_Glossary] CHECK CONSTRAINT [FK_REPORT_Glossary_REPORT_Measure]
+GO
+
+ALTER TABLE [dbo].[REPORT_Glossary]  WITH CHECK ADD  CONSTRAINT [FK_REPORT_Glossary_REPORT_Project] FOREIGN KEY([ProjectId])
+REFERENCES [dbo].[REPORT_Project] ([ProjectId])
+GO
+
+ALTER TABLE [dbo].[REPORT_Glossary] CHECK CONSTRAINT [FK_REPORT_Glossary_REPORT_Project]
+GO
+
+
+
+
+
